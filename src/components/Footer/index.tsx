@@ -10,23 +10,17 @@ const Footer: React.FC = () => {
       }}
       links={[
         {
-          key: 'Ant Design Pro',
-          title: 'Ant Design Pro',
+          key: 'myName',
+          title: 'Gavin Jin',
           href: 'https://pro.ant.design',
           blankTarget: true,
         },
         {
           key: 'github',
           title: <GithubOutlined />,
-          href: 'https://github.com/ant-design/ant-design-pro',
+          href: 'https://github.com/GavinJin0501',
           blankTarget: true,
-        },
-        {
-          key: 'Ant Design',
-          title: 'Ant Design',
-          href: 'https://ant.design',
-          blankTarget: true,
-        },
+        }
       ]}
     />
   );
