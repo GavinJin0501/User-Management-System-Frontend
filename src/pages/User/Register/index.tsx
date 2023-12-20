@@ -1,22 +1,17 @@
 import { Footer } from '@/components';
-import { login } from '@/services/ant-design-pro/api';
+import { register } from '@/services/ant-design-pro/api';
 import {
-  AlipayCircleOutlined,
   LockOutlined,
-  TaobaoCircleOutlined,
   UserOutlined,
-  WeiboCircleOutlined,
 } from '@ant-design/icons';
 import {
   LoginForm,
-  ProFormCheckbox,
   ProFormText,
 } from '@ant-design/pro-components';
-import { Helmet, Link, history, useModel } from '@umijs/max';
-import { Alert, Button, Divider, Space, Tabs, message } from 'antd';
+import { Helmet, history, Link} from '@umijs/max';
+import { Tabs, message } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useState } from 'react';
-import { flushSync } from 'react-dom';
 import Settings from '../../../../config/defaultSettings';
 import { SYSTEM_LOGO } from '@/constant';
 const useStyles = createStyles(({ token }) => {
@@ -54,82 +49,50 @@ const useStyles = createStyles(({ token }) => {
     },
   };
 });
-const ActionIcons = () => {
-  const { styles } = useStyles();
-  return (
-    <>
-      <AlipayCircleOutlined key="AlipayCircleOutlined" className={styles.action} />
-      <TaobaoCircleOutlined key="TaobaoCircleOutlined" className={styles.action} />
-      <WeiboCircleOutlined key="WeiboCircleOutlined" className={styles.action} />
-    </>
-  );
-};
-const Lang = () => {
-  const { styles } = useStyles();
-  return;
-};
-const LoginMessage: React.FC<{
-  content: string;
-}> = ({ content }) => {
-  return (
-    <Alert
-      style={{
-        marginBottom: 24,
-      }}
-      message={content}
-      type="error"
-      showIcon
-    />
-  );
-};
-const Login: React.FC = () => {
-  const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
+
+const Register: React.FC = () => {
   const [type, setType] = useState<string>('account');
-  const { initialState, setInitialState } = useModel('@@initialState');
   const { styles } = useStyles();
-  const fetchUserInfo = async () => {
-    const userInfo = await initialState?.fetchUserInfo?.();
-    if (userInfo) {
-      flushSync(() => {
-        setInitialState((s) => ({
-          ...s,
-          currentUser: userInfo,
-        }));
-      });
+  
+  const handleSubmit = async (values: API.RegisterParams) => {
+    // Validate params
+    const {userAccount, userPassword, checkPassword} = values;
+    if (userPassword !== checkPassword) {
+      message.error('Two passwords are not the same!');
+      return;
     }
-  };
-  const handleSubmit = async (values: API.LoginParams) => {
+
     try {
-      // 登录
-      const user = await login({
+      // Register 
+      const id = await register({
         ...values,
         type,
       });
-      if (user) {
-        const defaultLoginSuccessMessage = '登录成功！';
+      if (id > 0) {
+        const defaultLoginSuccessMessage = 'Register success！';
         message.success(defaultLoginSuccessMessage);
-        await fetchUserInfo();
+
         const urlParams = new URL(window.location.href).searchParams;
-        history.push(urlParams.get('redirect') || '/');
+        const url = '/user/login' + (urlParams.get('redirect') ? '?redirect=' + urlParams.get('redirect') : '');
+        history.push(url);
         return;
+      } else {
+        throw new Error(`register error id = ${id}`)
       }
-      // 如果失败去设置用户错误信息
-      setUserLoginState(user);
+
     } catch (error) {
-      const defaultLoginFailureMessage = '登录失败，请重试！';
+      const defaultLoginFailureMessage = 'Fail to register, please try again！';
       console.log(error);
       message.error(defaultLoginFailureMessage);
     }
   };
-  const { status, type: loginType } = userLoginState;
   return (
     <div className={styles.container}>
       <Helmet>
         <title>
-          {'Login Page'} - {Settings.title}
+          {'Register Page'} - {Settings.title}
         </title>
       </Helmet>
-      {/* <Lang /> */}
       <div
         style={{
           flex: '1',
@@ -137,6 +100,11 @@ const Login: React.FC = () => {
         }}
       >
         <LoginForm
+          submitter={{
+            searchConfig: {
+              submitText: 'Register'
+            }
+          }}
           contentStyle={{
             minWidth: 280,
             maxWidth: '75vw',
@@ -148,7 +116,7 @@ const Login: React.FC = () => {
             autoLogin: true,
           }}
           onFinish={async (values) => {
-            await handleSubmit(values as API.LoginParams);
+            await handleSubmit(values as API.RegisterParams);
           }}
         >
           <Tabs
@@ -158,14 +126,11 @@ const Login: React.FC = () => {
             items={[
               {
                 key: 'account',
-                label: 'Log in with account',
+                label: 'Register an account',
               }, 
             ]}
           />
 
-          {status === 'error' && loginType === 'account' && (
-            <LoginMessage content={'False account and password'} />
-          )}
           {type === 'account' && (
             <>
               <ProFormText
@@ -201,26 +166,40 @@ const Login: React.FC = () => {
                   }
                 ]}
               />
+              <ProFormText.Password
+                name="checkPassword"
+                fieldProps={{
+                  size: 'large',
+                  prefix: <LockOutlined />,
+                }}
+                placeholder={'Please re-enter your password'}
+                rules={[
+                  {
+                    required: true,
+                    message: 'Password is required!',
+                  },
+                  {
+                    min: 8,
+                    type: "string",
+                    message: 'Password is too short'
+                  }
+                ]}
+              />
             </>
-          )}
+          )} 
 
           <div
             style={{
               marginBottom: 24,
+              textAlign: "center"
             }}
-          >
-            <ProFormCheckbox noStyle name="autoLogin">
-              Auto login
-            </ProFormCheckbox>
-
-            <Link style={{float: "right"}} to="/user/register"> No account? Register here.</Link>
-            
+          > 
+          <Link style={{margin: "auto"}} to="/user/login">Have an account? Login here.</Link>
           </div>
         </LoginForm>
-        
       </div>
       <Footer />
     </div>
   );
 };
-export default Login;
+export default Register;
