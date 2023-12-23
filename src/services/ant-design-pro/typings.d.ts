@@ -13,6 +13,7 @@ declare namespace API {
     userStatus: number;
     userRole: number;
     createTime: Date;
+    planetCode: string;
   };
 
   type LoginResult = {
@@ -66,6 +67,7 @@ declare namespace API {
     userAccount?: string;
     userPassword?: string;
     checkPassword?: string;
+    planetCode?: string;
     type?: string;
   };
 
@@ -99,4 +101,15 @@ declare namespace API {
     description?: string;
     type?: NoticeIconItemType;
   };
+}
+
+
+/**
+ * Base response
+ */
+type BaseResponse<T> = {
+  code: number,
+  data: T,
+  message: string,
+  description: string
 }

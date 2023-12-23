@@ -56,7 +56,7 @@ const Register: React.FC = () => {
   
   const handleSubmit = async (values: API.RegisterParams) => {
     // Validate params
-    const {userAccount, userPassword, checkPassword} = values;
+    const {userAccount, userPassword, checkPassword, planetCode} = values;
     if (userPassword !== checkPassword) {
       message.error('Two passwords are not the same!');
       return;
@@ -64,11 +64,12 @@ const Register: React.FC = () => {
 
     try {
       // Register 
-      const id = await register({
+      const res = await register({
         ...values,
         type,
       });
-      if (id > 0) {
+
+      if (res && res.data) {
         const defaultLoginSuccessMessage = 'Register success！';
         message.success(defaultLoginSuccessMessage);
 
@@ -76,14 +77,10 @@ const Register: React.FC = () => {
         const url = '/user/login' + (urlParams.get('redirect') ? '?redirect=' + urlParams.get('redirect') : '');
         history.push(url);
         return;
-      } else {
-        throw new Error(`register error id = ${id}`)
-      }
-
-    } catch (error) {
+      } 
+    } catch (error: any ) {
       const defaultLoginFailureMessage = 'Fail to register, please try again！';
-      console.log(error);
-      message.error(defaultLoginFailureMessage);
+      message.error(error.message ?? defaultLoginFailureMessage);
     }
   };
   return (
@@ -183,6 +180,20 @@ const Register: React.FC = () => {
                     type: "string",
                     message: 'Password is too short'
                   }
+                ]}
+              />
+              <ProFormText
+                name="planetCode"
+                fieldProps={{
+                  size: 'large',
+                  prefix: <UserOutlined />,
+                }}
+                placeholder={'Please enter your planet code'}
+                rules={[
+                  {
+                    required: true,
+                    message: 'Planet code is required!',
+                  },
                 ]}
               />
             </>

@@ -53,6 +53,10 @@ const columns: ProColumns<API.CurrentUser>[] = [
     dataIndex: 'userStatus',
   },
   {
+    title: 'Planet Code',
+    dataIndex: 'planetCode',
+  },
+  {
     title: 'Role',
     dataIndex: 'userRole',
     valueType: 'select',

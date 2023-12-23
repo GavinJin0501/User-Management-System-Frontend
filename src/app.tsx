@@ -3,10 +3,12 @@ import { currentUser as queryCurrentUser } from '@/services/ant-design-pro/api';
 import { LinkOutlined } from '@ant-design/icons';
 import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
-import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
+import type { RequestConfig, RequestOptions, RunTimeLayoutConfig } from '@umijs/max';
 import { Link, history } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
+import { message } from 'antd';
+import { stringify } from 'querystring';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 /**
@@ -138,8 +140,32 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
  * 它基于 axios 和 ahooks 的 useRequest 提供了一套统一的网络请求和错误处理方案。
  * @doc https://umijs.org/docs/max/request#配置
  */
+// const globalResponseInterceptors = (response: Response, options: RequestConfig) => Response | Promise<Response> {
+//   console.log("global response interceptors: " + response)
+//   return response;
+// };
+
 export const request: RequestConfig = {
   baseURL: "/api",
   timeout: 10000,
   ...errorConfig,
+  responseInterceptors: [
+    function (response: Response, options: RequestOptions) : Response | Promise<Response> {
+      const res = response.data;
+      if (res.code != 0) {
+        if (res.code == 40100) {
+          history.replace({
+            pathname: '/user/login',
+            search: stringify({
+              redirect: location.pathname,
+            }),
+          })
+          message.error(res.message);
+        } else {
+          message.error(res.description);
+        }
+      } 
+      return res;
+    }
+  ]
 };

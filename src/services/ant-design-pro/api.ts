@@ -1,18 +1,19 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from '@umijs/max';
+// import request from '@/plugins/globalRequest'
 
 /** 获取当前的用户 GET /api/user/current */
 export async function currentUser(options?: { [key: string]: any }) {
-  return request<API.CurrentUser>('/user/current', {
+  return request<BaseResponse<API.CurrentUser>>('/user/current', {
     method: 'GET',
     ...(options || {}),
   });
 }
 
-/** 退出登录接口 POST /api/user/logout */
+/** Logout API POST /api/user/logout */ 
 export async function outLogin(options?: { [key: string]: any }) {
-  return request<Record<string, any>>('/user/logout', {
+  return request<BaseResponse<number>>('/user/logout', {
     method: 'POST',
     ...(options || {}),
   });
@@ -20,7 +21,7 @@ export async function outLogin(options?: { [key: string]: any }) {
 
 /** Login API POST /api/user/login */
 export async function login(body: API.LoginParams, options?: { [key: string]: any }) {
-  return request<API.LoginResult>('/user/login', {
+  return request<BaseResponse<API.LoginResult>>('/user/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,7 +33,7 @@ export async function login(body: API.LoginParams, options?: { [key: string]: an
 
 /** Register API POST /api/user/register */
 export async function register(body: API.RegisterParams, options?: { [key: string]: any }) {
-  return request<API.RegisterResult>('/user/register', {
+  return request<BaseResponse<API.RegisterResult>>('/user/register', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -45,7 +46,7 @@ export async function register(body: API.RegisterParams, options?: { [key: strin
 
 /** Search users API GET /api/user/search */
 export async function searchUsers(options?: { [key: string]: any }) {
-  return request<API.CurrentUser[]>('/user/search', {
+  return request<BaseResponse<API.CurrentUser[]>>('/user/search', {
     method: 'GET',
     ...(options || {}),
   });
