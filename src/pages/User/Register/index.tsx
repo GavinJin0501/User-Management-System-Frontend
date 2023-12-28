@@ -69,7 +69,7 @@ const Register: React.FC = () => {
         type,
       });
 
-      if (res && res.data) {
+      if (res) {
         const defaultLoginSuccessMessage = 'Register success！';
         message.success(defaultLoginSuccessMessage);
 

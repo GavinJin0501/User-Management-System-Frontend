@@ -23,8 +23,9 @@ export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
   currentUser?: API.CurrentUser;
   loading?: boolean;
-  fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
+  fetchUserInfo?: () => Promise<BaseResponse<API.CurrentUser> | undefined>;
 }> {
+  // alert(process.env.NODE_ENV);
   const fetchUserInfo = async () => {
     try {
       return await queryCurrentUser({
@@ -146,9 +147,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
 // };
 
 export const request: RequestConfig = {
-  baseURL: "/api",
+  baseURL: process.env.NODE_ENV === 'development' ? "/api" : "http://localhost:8080/api",
   timeout: 10000,
   ...errorConfig,
+  withCredentials: true,
   responseInterceptors: [
     function (response: Response, options: RequestOptions) : Response | Promise<Response> {
       const res = response.data;
